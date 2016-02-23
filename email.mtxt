@@ -1,0 +1,31 @@
+**********
+$5.40 Paid
+**********
+
+-----------------------
+Welcome to UQCS in 2016
+-----------------------
+
+${user.name}
+${str(dt.datetime.now())}
+
+UQCS 2016 Membership
+$ 5.00
+
+% if user.paid != "CASH":
+
+Online Payment Fee
+$ 0.40
+
+% endif
+
+Total
+$ ${'5.40' if user.paid != "CASH" else '5.00'}
+
+UQ Computing Society
+
+Level 2 Union Building,
+
+University of Queensland, 4067
+
+Questions? Email contact@uqcs.org.au

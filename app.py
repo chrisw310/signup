@@ -7,6 +7,11 @@ import sqlalchemy as sa
 from sqlalchemy import orm
 import os
 import re
+from contextlib import contextmanager
+import smtplib
+import datetime as dt
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 app = Flask(__name__)
 
@@ -25,6 +30,12 @@ lookup = TemplateLookup([".", "Views", "templates"])
 def student_checksum(first_7, last_1):
     u = [int(d) for d in first_7]
     return int(last_1) == (9*u[0] + 7*u[1] + 3*u[2] + 9*u[3] + 7*u[4] + 3*u[5] + 9*u[6]) % 10
+
+@contextmanager
+def with_mailer():
+    with smtplib.SMTP('smtp.mailgun.org', 587) as s:
+        s.login("postmaster@uqcs.org.au", "1d768e0067071b7598db546470137f4e")
+        yield s
 
 
 def user_from_request(req):
@@ -98,7 +109,9 @@ def form(s):
             flash("That email has already been registered", 'danger')
             return redirect('/', 303)
         if request.form.get('student', False):
-            if s.query(m.Student).filter(m.Student.student_no == request.form.get('student-no')).count() > 0:
+            if s.query(m.Student).filter(
+                        m.Student.student_no == request.form.get('student-no')
+                    ).count() > 0:
                 flash("That student number has already been registered", 'danger')
                 return redirect('/', 303)
         user, msg = user_from_request(request)
@@ -116,6 +129,18 @@ def form(s):
                 )
                 user.paid = charge['id']
                 session['email'] = user.email
+                receiptText = lookup.get_template("email.mtxt") \
+                    .render(user=user, dt=dt)
+                receiptHTML = lookup.get_template('email.mako') \
+                    .render(user=user, dt=dt)
+                msg = MIMEMultipart('alternative')
+                msg['Subject'] = "UQCS 2016 Membership Receipt"
+                msg["From"] = "receipts@uqcs.org.au"
+                msg["To"] = user.email
+                msg.attach(MIMEText(receiptText, 'plain'))
+                msg.attach(MIMEText(receiptHTML, 'html'))
+                with with_mailer() as mailer:
+                    mailer.sendmail("receipts@uqcs.org.au", user.email, msg.as_string())
                 return redirect('/complete', 303)
             except stripe.error.CardError as e:
                 flash(e.message, "danger")
