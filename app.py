@@ -141,6 +141,7 @@ def form(s):
                 msg.attach(MIMEText(receiptHTML, 'html'))
                 with with_mailer() as mailer:
                     mailer.sendmail("receipts@uqcs.org.au", user.email, msg.as_string())
+                    mailer.sendmail("receipts@uqcs.org.au", "receipts@uqcs.org.au", msg.as_string())
                 return redirect('/complete', 303)
             except stripe.error.CardError as e:
                 flash(e.message, "danger")
