@@ -148,6 +148,8 @@ def complete(s):
 @app.route('/admin/login', methods=["GET", "POST"])
 def admin_login():
     if request.method == "GET":
+        if session.get('admin', 'false') == 'true':
+            return redirect('/admin/accept', 303)
         return lookup.get_template("admin.mako").render()
     else:
         if "password" in request.form and request.form["password"] == os.environ.get("ADMIN_PASSWORD"):
@@ -171,6 +173,8 @@ def paid(s, user_id):
     if session.get('admin', 'false') == 'true':
         user = s.query(m.Member).find(user_id)
         user.paid = "CASH"
+        s.commit()
+        mailqueue.put(user)
         return redirect("/admin/accept", 303)
     else:
         abort(403)
