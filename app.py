@@ -50,7 +50,7 @@ def user_from_request(req):
         info['student_no'] = req.form["student-no"]
         if re.match("[1-5][0-9]{7,7}", info['student_no']) is None:
             return None, "Invalid student number format"
-        elif not student_checksum(info['student_no'][:7], info['student_no'][7])
+        elif not student_checksum(info['student_no'][:7], info['student_no'][7]):
             return None, "Student number has valid format but is not a valid number"
 
         if "year" in req.form:
