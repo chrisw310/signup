@@ -9,8 +9,8 @@ iframe{display:block;}
 .reqstar{color:red;}
 body{background-image: url('/static/bg.png'); background-size: cover}
 html,body{height: 100%}
-.row,.container{height: 100%}
-#body{background-color: white; height:100%;}
+.row,.container{min-height: 100%}
+#body{background-color: white; min-height:100%;}
 </style>
 </head>
 <body>

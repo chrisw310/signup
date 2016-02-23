@@ -131,6 +131,8 @@ def admin_login():
     else:
         return ""
 
+#@app.route('/admim/list')
+#@app.route('/admin/approve')
 
 app.secret_key = os.environ.get("APP_SECRET_KEY")
 app.run(port=9090)
