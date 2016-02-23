@@ -171,9 +171,8 @@ def admin_accept(s):
 @needs_db
 def paid(s, user_id):
     if session.get('admin', 'false') == 'true':
-        user = s.query(m.Member).find(user_id)
+        user = s.query(m.Member).filter(m.Member.id == user_id).one()
         user.paid = "CASH"
-        s.commit()
         mailqueue.put(user)
         return redirect("/admin/accept", 303)
     else:
