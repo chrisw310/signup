@@ -1,4 +1,5 @@
 from flask import Flask, request, session, flash, get_flashed_messages, redirect
+import threading
 import stripe
 from mako.lookup import TemplateLookup
 from functools import wraps
@@ -139,9 +140,12 @@ def form(s):
                 msg["To"] = user.email
                 msg.attach(MIMEText(receiptText, 'plain'))
                 msg.attach(MIMEText(receiptHTML, 'html'))
-                with with_mailer() as mailer:
-                    mailer.sendmail("receipts@uqcs.org.au", user.email, msg.as_string())
-                    mailer.sendmail("receipts@uqcs.org.au", "receipts@uqcs.org.au", msg.as_string())
+                def tempfn():
+                    with with_mailer() as mailer:
+                        mailer.sendmail("receipts@uqcs.org.au", user.email, msg.as_string())
+                        mailer.sendmail("receipts@uqcs.org.au", "receipts@uqcs.org.au", msg.as_string())
+                t = threading.Thread(target=tempfn, daemon=True)
+                t.start()
                 return redirect('/complete', 303)
             except stripe.error.CardError as e:
                 flash(e.message, "danger")
