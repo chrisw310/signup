@@ -159,7 +159,7 @@ def admin_login():
 @needs_db
 def admin_accept(s):
     if session.get('admin', 'false') == 'true':
-        q = s.query(m.Member).filter(m.Member.paid is None)
+        q = s.query(m.Member).filter(m.Member.paid == None)
         return lookup.get_template('accept.mako').render(members=q)
     else:
         abort(403)
