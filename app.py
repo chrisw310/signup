@@ -6,7 +6,7 @@ import models as m
 import sqlalchemy as sa
 from sqlalchemy import orm
 import os
-
+import re
 
 app = Flask(__name__)
 
@@ -21,6 +21,10 @@ m.Base.metadata.create_all(engine)
 # templates
 lookup = TemplateLookup([".", "Views", "templates"])
 
+
+def student_checksum(first_7, last_1):
+    u = [int(d) for d in first_7]
+    return int(last_1) == (9*u[0] + 7*u[1] + 3*u[2] + 9*u[3] + 7*u[4] + 3*u[5] + 9*u[6]) % 10
 
 
 def user_from_request(req):
@@ -44,6 +48,11 @@ def user_from_request(req):
 
     if req.form.get("student", False):
         info['student_no'] = req.form["student-no"]
+        if re.match("[1-5][0-9]{7,7}", info['student_no']) is None:
+            return None, "Invalid student number format"
+        elif not student_checksum(info['student_no'][:7], info['student_no'][7])
+            return None, "Student number has valid format but is not a valid number"
+
         if "year" in req.form:
             if req.form['year'] == "5+":
                 info['year'] = 5
@@ -88,6 +97,10 @@ def form(s):
         if s.query(m.Member).filter(m.Member.email == request.form.get('email')).count() > 0:
             flash("That email has already been registered", 'danger')
             return redirect('/', 303)
+        if request.form.get('student', False):
+            if s.query(m.Student).filter(m.Student.student_no == request.form.get('student-no')).count() > 0:
+                flash("That student number has already been registered", 'danger')
+                return redirect('/', 303)
         user, msg = user_from_request(request)
         if user is None:
             flash(msg, 'danger')
