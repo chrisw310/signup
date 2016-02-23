@@ -1,4 +1,4 @@
-from flask import Flask, request, session, flash, get_flashed_messages, redirect
+from flask import Flask, request, session, flash, get_flashed_messages, redirect, abort
 import threading
 import queue
 import stripe
@@ -148,9 +148,32 @@ def complete(s):
 @app.route('/admin/login', methods=["GET", "POST"])
 def admin_login():
     if request.method == "GET":
-        return ""
+        return lookup.get_template("admin.mako").render()
     else:
-        return ""
+        if "password" in request.form and request.form["password"] == os.environ.get("ADMIN_PASSWORD"):
+            session['admin'] = 'true'
+            return redirect('/admin/accept', 303)
+
+
+@app.route('/admin/accept')
+@needs_db
+def admin_accept(s):
+    if session.get('admin', 'false') == 'true':
+        q = s.query(m.Member).filter(m.Member.paid is None)
+        return lookup.get_template('accept.mako').render(members=q)
+    else:
+        abort(403)
+
+
+@app.route('/admin/paid/<int:user_id>')
+@needs_db
+def paid(s, user_id):
+    if session.get('admin', 'false') == 'true':
+        user = s.query(m.Member).find(user_id)
+        user.paid = "CASH"
+        return redirect("/admin/accept", 303)
+    else:
+        abort(403)
 
 
 def mailqueue_thread():
