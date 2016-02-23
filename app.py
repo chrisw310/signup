@@ -1,5 +1,6 @@
 from flask import Flask, request, session, flash, get_flashed_messages, redirect
 import threading
+import queue
 import stripe
 from mako.lookup import TemplateLookup
 from functools import wraps
@@ -34,8 +35,7 @@ def student_checksum(first_7, last_1):
 
 @contextmanager
 def with_mailer():
-    with smtplib.SMTP('smtp.mailgun.org', 587) as s:
-        s.login("postmaster@uqcs.org.au", "1d768e0067071b7598db546470137f4e")
+    
         yield s
 
 
@@ -89,6 +89,7 @@ def user_from_request(req):
     else:
         return m.Member(**info), "Success"
 
+mailqueue = queue.Queue()
 
 def needs_db(fn):
     @wraps(fn)
@@ -140,12 +141,8 @@ def form(s):
                 msg["To"] = user.email
                 msg.attach(MIMEText(receiptText, 'plain'))
                 msg.attach(MIMEText(receiptHTML, 'html'))
-                def tempfn():
-                    with with_mailer() as mailer:
-                        mailer.sendmail("receipts@uqcs.org.au", user.email, msg.as_string())
-                        mailer.sendmail("receipts@uqcs.org.au", "receipts@uqcs.org.au", msg.as_string())
-                t = threading.Thread(target=tempfn, daemon=True)
-                t.start()
+                mailqueue.put(("receipts@uqcs.org.au", user.email, msg.as_string()))
+                mailqueue.put(("receipts@uqcs.org.au", "receipts@uqcs.org.au",  msg.as_string()))
                 return redirect('/complete', 303)
             except stripe.error.CardError as e:
                 flash(e.message, "danger")
@@ -174,8 +171,20 @@ def admin_login():
     else:
         return ""
 
-#@app.route('/admim/list')
-#@app.route('/admin/approve')
+
+def mailqueue_thread():
+    s = smtplib.SMTP('smtp.mailgun.org', 587)
+    s.login("postmaster@uqcs.org.au", "1d768e0067071b7598db546470137f4e")
+    while True:
+        item = mailqueue.get()
+        if isinstance(item, type(None)):
+            break
+        s.sendmail(*item)
+
+t = threading.Thread(target=mailqueue_thread)
+t.start()
 
 app.secret_key = os.environ.get("APP_SECRET_KEY")
 app.run(port=9090)
+mailqueue.put(None)
+t.join()
