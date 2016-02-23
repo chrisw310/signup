@@ -173,18 +173,22 @@ def admin_login():
 
 
 def mailqueue_thread():
-    s = smtplib.SMTP('smtp.mailgun.org', 587)
-    s.login("postmaster@uqcs.org.au", "1d768e0067071b7598db546470137f4e")
     while True:
-        item = mailqueue.get()
-        if isinstance(item, type(None)):
-            break
-        s.sendmail(*item)
+        try:
+            item = mailqueue.get()
+            if isinstance(item, type(None)):
+                break
+            s = smtplib.SMTP('smtp.mailgun.org', 587)
+            s.login("postmaster@uqcs.org.au", "1d768e0067071b7598db546470137f4e")
+            print(item[0], item[1])
+            s.sendmail(*item)
+            s.quit()
+        except Exception as e:
+            print(e)
 
 t = threading.Thread(target=mailqueue_thread)
 t.start()
 
 app.secret_key = os.environ.get("APP_SECRET_KEY")
 app.run(port=9090)
-mailqueue.put(None)
 t.join()
