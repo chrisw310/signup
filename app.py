@@ -166,6 +166,15 @@ def admin_accept(s):
     else:
         abort(403)
 
+@app.route('/admin/list')
+@needs_db
+def admin_list(s):
+    if session.get('admin', 'false') == 'true':
+        q = s.query(m.Member)
+        return lookup.get_template('list.mako').render(members=q)
+    else:
+        abort(403)
+
 
 @app.route('/admin/paid/<int:user_id>')
 @needs_db
