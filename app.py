@@ -171,7 +171,8 @@ def admin_accept(s):
 def admin_list(s):
     if session.get('admin', 'false') == 'true':
         q = s.query(m.Member)
-        return lookup.get_template('list.mako').render(members=q)
+        q2 = s.query(m.Member).filter(m.Member.paid != None)
+        return lookup.get_template('list.mako').render(members=q, paid = q2)
     else:
         abort(403)
 

@@ -4,6 +4,8 @@
 <div id="body" class="col-md-12">
 <h1> Listing of all members</h1>
 <a href="#" class="btn btn-warning" onclick="window.location.reload()">Refresh</a>
+<p>Registered: ${members.count()}</p>
+<p>Paid: ${paid.count()}</p>
 <table class="table table-bordered table-hover">
 <thead>
 <tr>
