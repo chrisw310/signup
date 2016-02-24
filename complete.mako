@@ -8,5 +8,6 @@
 % else:
 <p>Come visit our market day stall or our welcome event in order to pay for your year's membership</p>
 % endif
+<p><a href="/">Go back to form</a></p>
 </div>
 </div>

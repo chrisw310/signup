@@ -115,7 +115,7 @@
   <input type="hidden" name="stripeToken" value="" id='stripeToken'>
   <input class="btn btn-primary" name="submit" type="submit" id="payonline_submit" value="Pay Online">
   <input type="submit" name="submission" value="Pay Online" style="display:none;" id="submitbtn">
-  <input class="btn btn-success" name="submission" type="submit" value="Pay Later">
+  <input class="btn btn-success" name="submission" type="submit" value="Pay Cash">
 </form>
 <div class="text-muted">
 <p></p>
