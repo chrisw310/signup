@@ -11,6 +11,7 @@ import os
 import re
 import requests
 import datetime as dt
+import premailer
 
 app = Flask(__name__)
 
@@ -207,7 +208,7 @@ def mailqueue_thread():
                               'to': item.email,
                               'bcc': "receipts@uqcs.org.au",
                               'text': receiptText,
-                              'html': receiptHTML,
+                              'html': premailer.transform(receiptHTML),
                               'subject': "UQCS 2016 Membership Receipt",
                           })
         except Exception as e:

@@ -1,0 +1,6 @@
+flask
+premailer
+requests
+sqlalchemy
+stripe
+mako
