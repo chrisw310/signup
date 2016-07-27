@@ -189,6 +189,16 @@ def paid(s, user_id):
     else:
         abort(403)
 
+@app.route('/admin/delete/<int:user_id>')
+@needs_db
+def delete(s, user_id):
+    if session.get('admin', 'false') == 'true':
+        user = s.query(m.Member).filter(m.Member.id == user_id).one()
+        s.delete(user)
+        return redirect("/admin/accept", 303)
+    else:
+        abort(403)
+
 
 def mailqueue_thread():
     while True:
