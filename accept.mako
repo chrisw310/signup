@@ -10,6 +10,7 @@
 <td>Name</td>
 <td>Email</td>
 <td></td>
+<td></td>
 </tr>
 </thead>
 <tbody>
@@ -18,7 +19,7 @@
 <td>${member.name}</td>
 <td>${member.email}</td>
 <td><a href="/admin/paid/${member.id}" class="btn btn-default">Paid</a></td>
-<td><a href="/admin/delete/${member.id}" class="btn btn-default">Paid</a></td>
+<td><a href="/admin/delete/${member.id}" class="btn btn-danger">Delete</a></td>
 </tr>
 %endfor
 </tbody>
