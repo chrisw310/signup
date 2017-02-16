@@ -1,17 +1,18 @@
-from flask import Flask, request, session, flash, get_flashed_messages, redirect, abort
-import threading
-import queue
-import stripe
-from mako.lookup import TemplateLookup
-from functools import wraps
-import models as m
-import sqlalchemy as sa
-from sqlalchemy import orm
-import os
-import re
-import requests
 import datetime as dt
+import os
+import queue
+import re
+import threading
+from functools import wraps
+
 import premailer
+import requests
+import sqlalchemy as sa
+import stripe
+from flask import Flask, request, session, flash, get_flashed_messages, redirect, abort
+from sqlalchemy import orm
+
+from . import models as m
 
 app = Flask(__name__)
 
@@ -24,7 +25,7 @@ Session = orm.sessionmaker(bind=engine, autocommit=True)
 m.Base.metadata.create_all(engine)
 
 # templates
-lookup = TemplateLookup([".", "Views", "templates"])
+from .templates import lookup
 
 
 def student_checksum(first_7, last_1):
@@ -223,10 +224,3 @@ def mailqueue_thread():
                           })
         except Exception as e:
             print(e)
-
-t = threading.Thread(target=mailqueue_thread)
-t.start()
-
-app.secret_key = os.environ.get("APP_SECRET_KEY")
-app.run(port=9090)
-t.join()

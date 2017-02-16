@@ -12,7 +12,7 @@
   </div>
   % endfor
 </div>
-<form method="POST" id='fullForm' action="." name="payForm">
+<form method="POST" id='fullForm' action="../../" name="payForm">
   <div class="form-group">
     <label for="nameInput">Name <span class="reqstar">*</span></label>
     <input type="text" class="form-control" id="nameInput" placeholder="Name" name="name" required="true">
