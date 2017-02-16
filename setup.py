@@ -1,4 +1,5 @@
 from distutils.core import setup
+import sys
 
 requires = [
     'flask',
@@ -9,6 +10,9 @@ requires = [
     'mako',
     'psycopg2',
 ]
+
+if sys.version_info < (3, 5):
+    requires.append('typing')
 
 setup(
     name='uqcs-signup',

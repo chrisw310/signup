@@ -19,10 +19,7 @@ app = Flask(__name__)
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
 
 # db
-engine = sa.create_engine("sqlite:///dev.db")
-Session = orm.sessionmaker(bind=engine, autocommit=True)
-
-m.Base.metadata.create_all(engine)
+Session = orm.sessionmaker(autocommit=True)
 
 # templates
 from .templates import lookup
@@ -90,7 +87,9 @@ def needs_db(fn):
     def decorated(*args, **kwargs):
         s = Session()
         with s.begin():
-            return fn(s, *args, **kwargs)
+            result = fn(s, *args, **kwargs)
+        s.commit()
+        return result
     return decorated
 
 
