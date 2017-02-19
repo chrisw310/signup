@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 import sys
 
 requires = [
@@ -19,12 +19,7 @@ if sys.version_info < (3, 5):
 setup(
     name='uqcs-signup',
     version='0.2.0',
-    packages=[
-        'uqcs.models',
-        'uqcs.app',
-        'uqcs.__main__',
-        'uqcs'
-    ],
+    packages=find_packages(),
     install_requires=requires,
     package_dir={'uqcs.join': 'app'},
     url='https://join.uqcs.org.au',

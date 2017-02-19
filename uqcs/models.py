@@ -20,7 +20,7 @@ class Member(Base):
     last_name = Column(UnicodeText)
     email = Column(Text)
     member_type = Column(String(20))
-    gender = Column(Enum("M", "F"), nullable=True)
+    gender = Column(Enum("M", "F", name="gender"), nullable=True)
     paid = Column(String(40))
 
     __mapper_args__ = {
