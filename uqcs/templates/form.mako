@@ -12,10 +12,14 @@
   </div>
   % endfor
 </div>
-<form method="POST" id='fullForm' action="../../" name="payForm">
+<form method="POST" id='fullForm' action="/" name="payForm">
   <div class="form-group">
-    <label for="nameInput">Name <span class="reqstar">*</span></label>
-    <input type="text" class="form-control" id="nameInput" placeholder="Name" name="name" required="true">
+    <label for="fnameInput">First Name<span class="reqstar">*</span></label>
+    <input type="text" class="form-control" id="fnameInput" placeholder="First Name" name="fname" required="true">
+  </div>
+  <div class="form-group">
+    <label for="lnameInput">Last Name<span class="reqstar">*</span></label>
+    <input type="text" class="form-control" id="lnameInput" placeholder="Last Name" name="lname" required="true">
   </div>
   <div class="form-group">
     <label for="emailInput">Email address <span class="reqstar">*</span></label>
@@ -126,7 +130,7 @@
 <script src="https://checkout.stripe.com/checkout.js"></script>
 <script type="text/javascript">
 var handler = StripeCheckout.configure({
-  key: 'pk_live_Nsovfda3IOO0YXlDEOr1bOjb',
+  key: '${STRIPE_PUBLIC_KEY}',
   locale: 'auto',
   token: function(token) {
     $('#stripeToken').val(token.id);

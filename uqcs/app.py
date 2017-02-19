@@ -1,41 +1,36 @@
-import datetime as dt
 import os
-import queue
 import re
-import threading
-from functools import wraps
-
-import premailer
-import requests
-import sqlalchemy as sa
 import stripe
-from flask import Flask, request, session, flash, get_flashed_messages, redirect, abort
-from sqlalchemy import orm
-
+from .templates import lookup
+from flask import Flask, request, session, flash, get_flashed_messages, redirect
 from . import models as m
+from .admin import admin
+from .base import needs_db
+from .base import work_queue
+
 
 app = Flask(__name__)
+app.register_blueprint(admin, url_prefix='/admin')
 
 stripe.api_key = os.environ.get("STRIPE_API_KEY")
-
-# db
-Session = orm.sessionmaker(autocommit=True)
-
-# templates
-from .templates import lookup
 
 
 def student_checksum(first_7, last_1):
     u = [int(d) for d in first_7]
-    return int(last_1) == (9*u[0] + 7*u[1] + 3*u[2] + 9*u[3] + 7*u[4] + 3*u[5] + 9*u[6]) % 10
+    return int(last_1) == (9*u[0] + 7*u[1]   + 3*u[2] + 9*u[3] + 7*u[4] + 3*u[5] + 9*u[6]) % 10
 
 
 def user_from_request(req):
     info = {}
-    if not req.form.get("name", "").strip():
-        return (None, "No name given")
+    if not req.form.get("fname", "").strip():
+        return (None, "No first name given")
     else:
-        info["name"] = req.form["name"].strip()
+        info["first_name"] = req.form["fname"].strip()
+
+    if not req.form.get("lname", "").strip():
+        return (None, "No last name given")
+    else:
+        info["last_name"] = req.form["lname"].strip()
 
     if not req.form.get("email", "").strip():
         return (None, "No email given")
@@ -80,25 +75,15 @@ def user_from_request(req):
     else:
         return m.Member(**info), "Success"
 
-mailqueue = queue.Queue()
-
-def needs_db(fn):
-    @wraps(fn)
-    def decorated(*args, **kwargs):
-        s = Session()
-        with s.begin():
-            result = fn(s, *args, **kwargs)
-        s.commit()
-        return result
-    return decorated
 
 
 @app.route("/", methods=["GET", "POST"])
 @needs_db
 def form(s):
+    stripe_pubkey = os.environ.get('STRIPE_PUBLIC_KEY')
     if request.method == "GET":
-        template = lookup.get_template('form1.mako')
-        return template.render(request=request, get_msgs=get_flashed_messages), 200
+        template = lookup.get_template('form.mako')
+        return template.render(request=request, get_msgs=get_flashed_messages, STRIPE_PUBLIC_KEY=stripe_pubkey), 200
     else:
         if s.query(m.Member).filter(m.Member.email == request.form.get('email')).count() > 0:
             flash("That email has already been registered", 'danger')
@@ -124,7 +109,7 @@ def form(s):
                 )
                 user.paid = charge['id']
                 session['email'] = user.email
-                mailqueue.put(user)
+                work_queue.put(user)
                 return redirect('/complete', 303)
             except stripe.error.CardError as e:
                 flash(e.message, "danger")
@@ -144,82 +129,3 @@ def complete(s):
         .one()
     return lookup.get_template("complete.mako").render(
         member=user)
-
-
-@app.route('/admin/login', methods=["GET", "POST"])
-def admin_login():
-    if request.method == "GET":
-        if session.get('admin', 'false') == 'true':
-            return redirect('/admin/accept', 303)
-        return lookup.get_template("admin.mako").render()
-    else:
-        if "password" in request.form and request.form["password"] == os.environ.get("ADMIN_PASSWORD"):
-            session['admin'] = 'true'
-            return redirect('/admin/accept', 303)
-
-
-@app.route('/admin/accept')
-@needs_db
-def admin_accept(s):
-    if session.get('admin', 'false') == 'true':
-        q = s.query(m.Member).filter(m.Member.paid == None)
-        return lookup.get_template('accept.mako').render(members=q)
-    else:
-        abort(403)
-
-@app.route('/admin/list')
-@needs_db
-def admin_list(s):
-    if session.get('admin', 'false') == 'true':
-        q = s.query(m.Member)
-        q2 = s.query(m.Member).filter(m.Member.paid != None)
-        return lookup.get_template('list.mako').render(members=q, paid = q2)
-    else:
-        abort(403)
-
-
-@app.route('/admin/paid/<int:user_id>')
-@needs_db
-def paid(s, user_id):
-    if session.get('admin', 'false') == 'true':
-        user = s.query(m.Member).filter(m.Member.id == user_id).one()
-        user.paid = "CASH"
-        mailqueue.put(user)
-        return redirect("/admin/accept", 303)
-    else:
-        abort(403)
-
-@app.route('/admin/delete/<int:user_id>')
-@needs_db
-def delete(s, user_id):
-    if session.get('admin', 'false') == 'true':
-        user = s.query(m.Member).filter(m.Member.id == user_id).one()
-        s.delete(user)
-        return redirect("/admin/accept", 303)
-    else:
-        abort(403)
-
-
-def mailqueue_thread():
-    while True:
-        try:
-            item = mailqueue.get()
-            if isinstance(item, type(None)):
-                break
-            print(item.name)
-            receiptText = lookup.get_template("email.mtxt") \
-                .render(user=item, dt=dt)
-            receiptHTML = lookup.get_template('email.mako') \
-                .render(user=item, dt=dt)
-            requests.post("https://api.mailgun.net/v3/uqcs.org.au/messages",
-                          auth=('api', os.environ.get("MAILGUN_API_KEY")),
-                          data={
-                              'from': 'receipts@uqcs.org.au',
-                              'to': item.email,
-                              'bcc': "receipts@uqcs.org.au",
-                              'text': receiptText,
-                              'html': premailer.transform(receiptHTML),
-                              'subject': "UQCS 2016 Membership Receipt",
-                          })
-        except Exception as e:
-            print(e)

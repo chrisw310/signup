@@ -6,7 +6,7 @@ $5.40 Paid
 Welcome to UQCS in 2016
 -----------------------
 
-${user.name}
+${user.first_name} ${user.last_name}
 ${str(dt.datetime.now())}
 
 UQCS 2016 Membership

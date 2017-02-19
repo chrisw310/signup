@@ -9,6 +9,8 @@ requires = [
     'stripe',
     'mako',
     'psycopg2',
+    'waitress',
+    'mailchimp3',
 ]
 
 if sys.version_info < (3, 5):

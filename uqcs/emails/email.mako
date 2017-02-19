@@ -311,7 +311,7 @@ a {
                   <td class="content-block aligncenter">
                     <table class="invoice">
                       <tr>
-                        <td>${user.name}<br/>${str(dt.datetime.now())}</td>
+                        <td>${user.first_name} ${user.last_name}<br/>${str(dt.datetime.now())}</td>
                       </tr>
                       <tr>
                         <td>

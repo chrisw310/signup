@@ -16,7 +16,8 @@ Base = declarative_base(cls=Ancestor)
 
 class Member(Base):
     id = Column(Integer, primary_key=True, unique=True, nullable=False, autoincrement=True)
-    name = Column(UnicodeText)
+    first_name = Column(UnicodeText)
+    last_name = Column(UnicodeText)
     email = Column(Text)
     member_type = Column(String(20))
     gender = Column(Enum("M", "F"), nullable=True)

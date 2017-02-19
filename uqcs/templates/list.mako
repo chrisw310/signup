@@ -9,7 +9,8 @@
 <table class="table table-bordered table-hover">
 <thead>
 <tr>
-<td>Name</td>
+<td>First Name</td>
+<td>Last Name</td>
 <td>Email</td>
 <td>Paid</td>
 </tr>
@@ -17,7 +18,8 @@
 <tbody>
 % for member in members:
 <tr>
-<td>${member.name}</td>
+<td>${member.first_name}</td>
+<td>${member.last_name}</td>
 <td>${member.email}</td>
 <td>${str(member.paid)}</td>
 </tr>
