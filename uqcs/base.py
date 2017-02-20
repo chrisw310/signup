@@ -3,7 +3,7 @@ import queue
 from functools import wraps
 
 work_queue = queue.Queue()
-Session = orm.sessionmaker(autocommit=True)
+Session = orm.sessionmaker(autocommit=True, expire_on_commit=False)
 
 
 def needs_db(fn):
