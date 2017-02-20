@@ -1,6 +1,6 @@
 from flask import Blueprint, request, session, redirect, abort
 from .templates import lookup
-from .base import needs_db, work_queue
+from .base import needs_db, mailchimp_queue, mailer_queue
 from . import models as m
 import os
 
@@ -46,7 +46,8 @@ def paid(s, user_id):
     if session.get('admin', 'false') == 'true':
         user = s.query(m.Member).filter(m.Member.id == user_id).one()
         user.paid = "CASH"
-        work_queue.put(user)
+        mailchimp_queue.put(user)
+        mailer_queue.put(user)
         return redirect("/admin/accept", 303)
     else:
         abort(403)

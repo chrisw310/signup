@@ -1,6 +1,6 @@
 from .app import app
-from .workers import all_the_workers
-from .base import work_queue, Session
+from .workers import mailchimp_worker, mailer_worker
+from .base import mailchimp_queue, mailer_queue, Session
 from . import models as m
 import sqlalchemy as sa
 import os
@@ -14,9 +14,22 @@ def main(args):
     Session.configure(bind=engine)
     m.Base.metadata.create_all(engine)
 
-    t = threading.Thread(target=all_the_workers, args=(work_queue,))
-    t.start()
+    mailchimp_thread = threading.Thread(
+        target=mailchimp_worker,
+        args=(mailchimp_queue,),
+    )
+    mailer_thread = threading.Thread(
+        target=mailer_worker,
+        args=(mailer_queue,),
+    )
+    mailchimp_thread.start()
+    mailer_thread.start()
 
     app.secret_key = os.environ.get("APP_SECRET_KEY")
     waitress.serve(app, host=args[2], port=9090)
-    t.join()
+
+    mailchimp_queue.put(None)
+    mailer_queue.put(None)
+
+    mailchimp_thread.join(5000)
+    mailer_thread.join(5000)
