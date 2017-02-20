@@ -1,5 +1,6 @@
+# UQCS Payments
 
-
+The online membership form for the [UQ Computing Society](https://uqcs.org.au)
 
 
 ## Params
@@ -12,6 +13,7 @@
  - `STRIPE_PUBLIC_KEY`
  - `ADMIN_PASSWORD`
  - `APP_SECRET_KEY`
+ - `MAILGUN_API_KEY`
 
 ### Command line args
 

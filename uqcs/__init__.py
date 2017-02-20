@@ -6,9 +6,10 @@ import sqlalchemy as sa
 import os
 import threading
 import waitress
-
+import logging
 
 def main(args):
+    logging.basicConfig(level=logging.DEBUG)
     engine = sa.create_engine(args[1])
     Session.configure(bind=engine)
     m.Base.metadata.create_all(engine)
@@ -17,5 +18,5 @@ def main(args):
     t.start()
 
     app.secret_key = os.environ.get("APP_SECRET_KEY")
-    waitress.serve(app, host='0.0.0.0', port=9090)
+    waitress.serve(app, host=args[2], port=9090)
     t.join()

@@ -4,11 +4,15 @@ import premailer
 import requests
 import os
 import threading
+import logging
 from queue import Queue
 from .templates import lookup
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from . import models as m
+
+
+logger = logging.getLogger(__name__)
 
 
 def all_the_workers(queue):
@@ -53,7 +57,10 @@ def mailchimp_worker(queue: Queue):
             data['merge_fields']['YEAR'] = str(item.year)
             data['merge_fields']['PROGRAM'] = str(item.program)
             data['merge_fields']['UNDERGRAD'] = str(item.undergrad)
-        client.lists.members.create(list_id, data)
+        try:
+            client.lists.members.create(list_id, data)
+        except Exception as e:
+            logger.exception(e)
 
 
 def mailer_worker(mailqueue):
@@ -75,4 +82,4 @@ def mailer_worker(mailqueue):
                               'subject': "UQCS 2017 Membership Receipt",
                           })
         except Exception as e:
-            print(e)
+            logger.exception(e)
