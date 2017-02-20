@@ -3,13 +3,13 @@ $5.40 Paid
 **********
 
 -----------------------
-Welcome to UQCS in 2016
+Welcome to UQCS in 2017
 -----------------------
 
 ${user.first_name} ${user.last_name}
 ${str(dt.datetime.now())}
 
-UQCS 2016 Membership
+UQCS 2017 Membership
 $ 5.00
 
 % if user.paid != "CASH":
