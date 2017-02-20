@@ -47,16 +47,20 @@ def mailchimp_worker(queue: Queue):
             'merge_fields': {
                 'FNAME': item.first_name,
                 'LNAME': item.last_name,
-                'MTYPE': item.member_type,
+                'MTYPE': 'Generic',
                 'GENDER': item.gender or '',
             }
         }
         if item.member_type == "student":
+            data['merge_fields']['MTYPE'] = 'Student'
             data['merge_fields']['SNUM'] = item.student_no
-            data['merge_fields']['DOMESTIC'] = str(item.domestic)
-            data['merge_fields']['YEAR'] = str(item.year)
+            if item.domestic is not None:
+                data['merge_fields']['DOMESTIC'] = 'Domestic' if item.domestic else 'International'
+            if item.year:
+                data['merge_fields']['YEAR'] = item.year
             data['merge_fields']['PROGRAM'] = str(item.program)
-            data['merge_fields']['UNDERGRAD'] = str(item.undergrad)
+            if item.undergrad is not None:
+                data['merge_fields']['UNDERGRAD'] = 'Undergrad' if item.undergrad else 'Postgrad'
         try:
             client.lists.members.create(list_id, data)
         except Exception as e:
@@ -66,7 +70,7 @@ def mailchimp_worker(queue: Queue):
 def mailer_worker(mailqueue):
     for item in iter(mailqueue.get, None):
         try:
-            print(item.name)
+            print(item.first_name + ' ' + item.last_name)
             receiptText = lookup.get_template("email.mtxt") \
                 .render(user=item, dt=dt)
             receiptHTML = lookup.get_template('email.mako') \
