@@ -98,7 +98,7 @@ def admin_login(s):
             s.flush()
             resp = redirect('/admin/accept', 303)
             resp.set_cookie('token', user_session.token, 3600)
-            logger.debug('Logging in {}'.format(user.username))
+            logger.debug('Logging in {} with {}'.format(user.username, user_session.token))
             return resp
         else:
             flash('Username or password invalid')
