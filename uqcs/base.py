@@ -2,7 +2,9 @@ from sqlalchemy import orm
 import queue
 from functools import wraps
 
-work_queue = queue.Queue()
+mailer_queue = queue.Queue()
+mailchimp_queue = queue.Queue()
+
 Session = orm.sessionmaker(autocommit=True, expire_on_commit=False)
 
 

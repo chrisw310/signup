@@ -6,7 +6,7 @@ from flask import Flask, request, session, flash, get_flashed_messages, redirect
 from . import models as m
 from .admin import admin
 from .base import needs_db
-from .base import work_queue
+from .base import mailchimp_queue, mailer_queue
 
 
 app = Flask(__name__)
@@ -109,12 +109,14 @@ def form(s):
                 )
                 user.paid = charge['id']
                 session['email'] = user.email
-                work_queue.put(user)
+                mailer_queue.put(user)
+                mailchimp_queue.put(user)
                 return redirect('/complete', 303)
             except stripe.error.CardError as e:
                 flash(e.message, "danger")
                 return redirect('/payment', 303)
         else:
+            mailchimp_queue.put(user)
             session['email'] = user.email
             return redirect('/complete', 303)
 

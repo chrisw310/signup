@@ -18,3 +18,4 @@ The online membership form for the [UQ Computing Society](https://uqcs.org.au)
 ### Command line args
 
 1. DB connection string (sqlalchemy style)
+2. Host
