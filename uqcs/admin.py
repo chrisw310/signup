@@ -6,13 +6,14 @@ import sqlalchemy.exc as sa_exc
 import functools
 from . import models as m
 import os
+import logging
 
 # Type Imports
 from typing import TYPE_CHECKING, Optional
 from sqlalchemy.orm import Session
 
 admin = Blueprint('admin', __name__)
-
+logger = logging.getLogger(__name__)
 
 def clear_token(response):
     response.set_cookie('token', value='', max_age=0)
@@ -76,6 +77,7 @@ def admin_login(s):
         token = request.cookies.get('token')
         user = get_user_from_token(s, token)
         if user is not None:
+            logger.debug('Redirecting logged in user {}'.format(user.username))
             return redirect('/admin/accept', 303)
     if "username" in request.form:
         user = s.query(m.AdminUser).filter(
@@ -94,10 +96,11 @@ def admin_login(s):
             s.flush()
             resp = redirect('/admin/accept', 303)
             resp.set_cookie('token', user_session.token, 3600)
-
+            logger.debug('Logging in {}'.format(user.username))
             return resp
         else:
             flash('Username or password invalid')
+            logging.info('Failed attempt to log in user {}'.format(user.username))
             return redirect('/admin/login', 303)
 
 

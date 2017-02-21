@@ -3,6 +3,8 @@ from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy import Column, Integer, DateTime, Enum, String, UnicodeText, Text, Boolean, ForeignKey, func, Interval, text
 import tzlocal
 import bcrypt
+import logging
+logger = logging.getLogger(__name__)
 
 
 class FormError(Exception):
@@ -106,18 +108,22 @@ class Session(Base):
     token = Column(PGUUID, primary_key=True, server_default=text('uuid_generate_v4()'))
     username = Column(Text, ForeignKey(AdminUser._username))
     issued_datetime = Column(DateTime(timezone=True), default=dt.datetime.utcnow(), server_default='now')
+    logger = logger.getChild('Session')
 
     @declared_attr
     def expiry_datetime(self):
         return Column(DateTime(timezone=True), nullable=True, default=lambda: dt.datetime.utcnow() + self.EXPIRY_TIME)
 
     def valid(self):
-        if dt.datetime.now(tz=tzlocal.get_localzone()) < self.expiry_datetime:
+        now = dt.datetime.now(tz=tzlocal.get_localzone())
+        if now < self.expiry_datetime:
+            self.logger.debug("Session for user {} is valid at {}".format(self.username, now))
             return True
         else:
             return False
 
     def update_expiry(self):
+        self.logger.debug('Updating token for user with username {}'.format(self.username))
         self.expiry_datetime = dt.datetime.utcnow() + self.EXPIRY_TIME
 
 
