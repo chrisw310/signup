@@ -112,7 +112,7 @@ class Session(Base):
 
     @declared_attr
     def expiry_datetime(self):
-        return Column(DateTime(timezone=True), nullable=True, default=lambda: dt.datetime.utcnow() + self.EXPIRY_TIME)
+        return Column(DateTime(timezone=True), nullable=True, default=lambda: dt.datetime.now(tz=tzlocal.get_localzone()) + self.EXPIRY_TIME)
 
     def valid(self):
         now = dt.datetime.now(tz=tzlocal.get_localzone())
