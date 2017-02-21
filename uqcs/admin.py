@@ -51,7 +51,7 @@ def get_user_from_token(s: Session, token: str) -> Optional[m.AdminUser]:
     return final_user
 
 
-def needs_admin(fn):
+def needs_db_and_admin(fn):
     @functools.wraps(fn)
     @needs_db
     def inner(s: Session, *args, **kwargs):
@@ -66,7 +66,7 @@ def needs_admin(fn):
             clear_token(resp)
             return resp
         logger.debug("Action as {}".format(user.username))
-        return fn(user, *args, **kwargs)
+        return fn(s, user, *args, **kwargs)
     return inner
 
 
@@ -108,16 +108,14 @@ def admin_login(s):
 
 
 @admin.route('/accept')
-@needs_admin
-@needs_db
+@needs_db_and_admin
 def admin_accept(s, user):
     q = s.query(m.Member).filter(m.Member.paid == None)
     return lookup.get_template('accept.mako').render(members=q)
 
 
 @admin.route('/list')
-@needs_admin
-@needs_db
+@needs_db_and_admin
 def admin_list(s, admin_user):
     q = s.query(m.Member)
     q2 = s.query(m.Member).filter(m.Member.paid != None)
@@ -125,8 +123,7 @@ def admin_list(s, admin_user):
 
 
 @admin.route('/paid/<int:member_id>')
-@needs_admin
-@needs_db
+@needs_db_and_admin
 def paid(s, user_id):
     if session.get('admin', 'false') == 'true':
         user = s.query(m.Member).filter(m.Member.id == user_id).one()
@@ -139,9 +136,15 @@ def paid(s, user_id):
 
 
 @admin.route('/delete/<int:member_id>')
-@needs_admin
-@needs_db
+@needs_db_and_admin
 def delete(s, admin_user, member_id):
     user = s.query(m.Member).filter(m.Member.id == member_id).one()
     s.delete(user)
     return redirect("/admin/accept", 303)
+
+@admin.route('/logout')
+@needs_db_and_admin
+def logout(s, admin_user):
+    resp = redirect(url_for('admin.admin_login'), 303)
+    clear_token(resp)
+    return resp
