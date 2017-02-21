@@ -1,6 +1,6 @@
 from .app import app
 from .workers import mailchimp_worker, mailer_worker
-from .base import mailchimp_queue, mailer_queue, Session
+from .base import mailchimp_queue, mailer_queue, Session, DB
 from . import models as m
 import sqlalchemy as sa
 import os
@@ -10,9 +10,10 @@ import logging
 
 def main(args):
     logging.basicConfig(level=logging.DEBUG)
-    engine = sa.create_engine(args[1])
-    Session.configure(bind=engine)
-    m.Base.metadata.create_all(engine)
+    app.config['SQLALCHEMY_DATABASE_URI'] = args[1]
+    DB.init_app(app)
+    with app.app_context():
+        m.Base.metadata.create_all(Session().connection())
 
     mailchimp_thread = threading.Thread(
         target=mailchimp_worker,

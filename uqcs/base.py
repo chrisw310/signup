@@ -1,25 +1,21 @@
 from sqlalchemy import orm
 import queue
 from functools import wraps
-
+from flask_sqlalchemy import SQLAlchemy
 
 mailer_queue = queue.Queue()
 mailchimp_queue = queue.Queue()
 
-Session = orm.sessionmaker(autocommit=True, expire_on_commit=False)
+DB = SQLAlchemy()
+Session = DB.session
 
 
 def needs_db(fn):
     @wraps(fn)
     def decorated(*args, **kwargs):
         s = Session()
-        s.begin()
-        try:
+        with s.begin_nested():
             result = fn(s, *args, **kwargs)
-        except Exception:
-            s.rollbacK()
-            raise
-        else:
-            s.commit()
+        s.commit()
         return result
     return decorated

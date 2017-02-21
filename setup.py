@@ -12,7 +12,8 @@ requires = [
     'waitress',
     'mailchimp3',
     'bcrypt',
-    'tzlocal'
+    'tzlocal',
+    'flask-sqlalchemy'
 ]
 
 if sys.version_info < (3, 5):
