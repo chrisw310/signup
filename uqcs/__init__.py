@@ -13,7 +13,10 @@ def main(args):
     app.config['SQLALCHEMY_DATABASE_URI'] = args[1]
     DB.init_app(app)
     with app.app_context():
-        m.Base.metadata.create_all(Session().connection())
+        s = Session()
+        m.Base.metadata.create_all(s.connection())
+        s.commit()
+
 
     mailchimp_thread = threading.Thread(
         target=mailchimp_worker,

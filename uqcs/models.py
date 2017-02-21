@@ -107,24 +107,25 @@ class Session(Base):
     EXPIRY_TIME = dt.timedelta(hours=1)
     token = Column(PGUUID, primary_key=True, server_default=text('uuid_generate_v4()'))
     username = Column(Text, ForeignKey(AdminUser._username))
-    issued_datetime = Column(DateTime(timezone=True), default=dt.datetime.utcnow(), server_default='now')
+    issued_datetime = Column(DateTime(), default=dt.datetime.now, server_default='now')
     logger = logger.getChild('Session')
 
     @declared_attr
     def expiry_datetime(self):
-        return Column(DateTime(timezone=True), nullable=True, default=lambda: dt.datetime.now(tz=tzlocal.get_localzone()) + self.EXPIRY_TIME)
+        return Column(DateTime(), nullable=True, default=lambda: dt.datetime.now() + self.EXPIRY_TIME)
 
     def valid(self):
-        now = dt.datetime.now(tz=tzlocal.get_localzone())
+        now = dt.datetime.now()
         if now < self.expiry_datetime:
             self.logger.debug("Session for user {} is valid at {}".format(self.username, now))
             return True
         else:
+            self.logger.debug("Session for user {} has expired at {}, expiry time {}".format(self.username, now, self.expiry_datetime))
             return False
 
     def update_expiry(self):
         self.logger.debug('Updating token for user with username {}'.format(self.username))
-        self.expiry_datetime = dt.datetime.utcnow() + self.EXPIRY_TIME
+        self.expiry_datetime = dt.datetime.now() + self.EXPIRY_TIME
 
 
 def register_from_request(request=None):

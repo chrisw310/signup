@@ -13,7 +13,7 @@ requires = [
     'mailchimp3',
     'bcrypt',
     'tzlocal',
-    'flask-sqlalchemy'
+    'flask-sqlalchemy',
 ]
 
 if sys.version_info < (3, 5):
