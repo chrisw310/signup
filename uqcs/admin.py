@@ -32,8 +32,10 @@ def get_user_from_token(s: Session, token: str) -> Optional[m.AdminUser]:
 
     if len(sessions_users) <= 0:
         final_user = None
+        logger.debug("No sessions for token {}".format(token))
     elif len(sessions_users) == 1:
         user_session, user = sessions_users[0]
+        logger.debug("Token {} is for user {}".format(token, user.username))
         if user_session.valid():
             user_session.update_expiry()
             final_user = user
@@ -41,6 +43,7 @@ def get_user_from_token(s: Session, token: str) -> Optional[m.AdminUser]:
             s.delete(user_session)
             final_user = None
     else:
+        logger.error("This should never happen")
         final_user = None
         for user_session, user in sessions_users:
             if user_session.valid():
