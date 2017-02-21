@@ -56,13 +56,16 @@ def needs_admin(fn):
     @needs_db
     def inner(s: Session, *args, **kwargs):
         if 'token' not in request.cookies:
-            abort(403)
+            logger.debug("Forbidden: no token requesting {}".format(fn.__name__))
+            return redirect('/admin/login', code=303)
         token = request.cookies.get('token')
         user = get_user_from_token(s, token)
         if user is None:
+            logger.debug("Forbidden: invalid token")
             resp = redirect('/admin/login', code=303)
             clear_token(resp)
             return resp
+        logger.debug("Action as {}".format(user.username))
         return fn(user, *args, **kwargs)
     return inner
 
@@ -70,15 +73,14 @@ def needs_admin(fn):
 @admin.route('/login', methods=["GET", "POST"])
 @needs_db
 def admin_login(s):
-    if request.method == "GET":
-        return lookup.get_template('admin.mako').render(get_msgs=get_flashed_messages)
-
     if "token" in request.cookies:
         token = request.cookies.get('token')
         user = get_user_from_token(s, token)
         if user is not None:
             logger.debug('Redirecting logged in user {}'.format(user.username))
             return redirect('/admin/accept', 303)
+    if request.method == "GET":
+        return lookup.get_template('admin.mako').render(get_msgs=get_flashed_messages)
     if "username" in request.form:
         user = s.query(m.AdminUser).filter(
             m.AdminUser._username == request.form.get('username')
