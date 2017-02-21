@@ -11,6 +11,8 @@ requires = [
     'psycopg2',
     'waitress',
     'mailchimp3',
+    'bcrypt',
+    'tzlocal'
 ]
 
 if sys.version_info < (3, 5):

@@ -1,5 +1,8 @@
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy import *
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
+from sqlalchemy import Column, Integer, DateTime, Enum, String, UnicodeText, Text, Boolean, ForeignKey, func, Interval, text
+import tzlocal
+import bcrypt
 
 
 class FormError(Exception):
@@ -56,10 +59,66 @@ class Student(Member):
 
 
 class AdminUser(Base):
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(Text, unique=True)
-    password = Column(String(60))
-    name = Column(UnicodeText)
+    _username = Column('username', Text, primary_key=True)
+    name = Column(Text)
+    _password = Column('password', String(60), nullable=True)
+
+    @property
+    def username(self) -> str:
+        return self._username.lower()
+
+    @username.setter
+    def username(self, val: str) -> None:
+        self._username = val.lower()
+
+    @property
+    def display_name(self) -> str:
+        if self.name:
+            return self.name
+        else:
+            return self.username
+
+    @display_name.setter
+    def display_name(self, val: str) -> None:
+        self.name = val
+
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, val):
+        self._password = bcrypt.hashpw(val, bcrypt.gensalt())
+
+    def set_password(self, password, hashed=False):
+        if hashed:
+            self.password = password
+        else:
+            self._password = password
+
+    def check_password(self, password):
+        return bcrypt.checkpw(password, self._password.encode('utf-8'))
+
+import datetime as dt
+
+class Session(Base):
+    EXPIRY_TIME = dt.timedelta(hours=1)
+    token = Column(PGUUID, primary_key=True, server_default=text('uuid_generate_v4()'))
+    username = Column(Text, ForeignKey(AdminUser._username))
+    issued_datetime = Column(DateTime(timezone=True), default=dt.datetime.utcnow(), server_default='now')
+
+    @declared_attr
+    def expiry_datetime(self):
+        return Column(DateTime(timezone=True), nullable=True, default=lambda: dt.datetime.utcnow() + self.EXPIRY_TIME)
+
+    def valid(self):
+        if dt.datetime.now(tz=tzlocal.get_localzone()) < self.expiry_datetime:
+            return True
+        else:
+            return False
+
+    def update_expiry(self):
+        self.expiry_datetime = dt.datetime.utcnow() + self.EXPIRY_TIME
 
 
 def register_from_request(request=None):
