@@ -12,7 +12,7 @@ def needs_db(fn):
     @wraps(fn)
     def decorated(*args, **kwargs):
         s = Session()
-        with s.begin():
+        with s.begin_nested():
             result = fn(s, *args, **kwargs)
         return result
     return decorated
