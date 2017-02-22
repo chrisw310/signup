@@ -130,14 +130,11 @@ def admin_list(s, admin_user):
 @admin.route('/paid/<int:member_id>')
 @needs_db_and_admin
 def paid(s, admin_user, member_id):
-    if session.get('admin', 'false') == 'true':
-        user = s.query(m.Member).filter(m.Member.id == user_id).one()
-        user.paid = "CASH"
-        mailchimp_queue.put(user)
-        mailer_queue.put(user)
-        return redirect("/admin/accept", 303)
-    else:
-        abort(403)
+    user = s.query(m.Member).filter(m.Member.id == user_id).one()
+    user.paid = "CASH"
+    mailchimp_queue.put(user)
+    mailer_queue.put(user)
+    return redirect("/admin/accept", 303)
 
 
 @admin.route('/delete/<int:member_id>')
