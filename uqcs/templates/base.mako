@@ -12,6 +12,10 @@ html,body{min-height: 100%}
 .row,.container{min-height: 100%}
 #body{background-color: white; min-height:100%;}
 </style>
+
+<%block name="head_extra">
+</%block>
+
 </head>
 <body>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script>

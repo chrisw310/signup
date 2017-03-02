@@ -1,4 +1,7 @@
 <%inherit file="base.mako"/>
+<%block name="head_extra">
+<meta http-equiv="refresh" content="10;url=/" />
+</% block>
 <div class="row">
 <div>&nbsp;</div>
 <div class="jumbotron">
