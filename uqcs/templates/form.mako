@@ -1,8 +1,9 @@
 <%inherit file="base.mako"/>
 
-<div class="row">
-<div id="body" class="col-sm-12 col-md-8 col-md-offset-2">
+<div class="row" style="text-align:center">
+<div id="body" class="col-sm-12 col-md-6 col-md-offset-3">
 
+<img src="/static/logo.png" />
 <h1>2017 UQCS Registration</h1>
 <div class="flash">
   % for category, msg in get_msgs(with_categories=True):
