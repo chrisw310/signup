@@ -1,9 +1,12 @@
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
-from sqlalchemy import Column, Integer, DateTime, Enum, String, UnicodeText, Text, Boolean, ForeignKey, func, Interval, text
+from sqlalchemy import (
+    Column, Integer, DateTime, Enum, String, UnicodeText, Text, Boolean, ForeignKey, func, Interval, text, DateTime
+)
 import tzlocal
 import bcrypt
 import logging
+import datetime as dt
 logger = logging.getLogger(__name__)
 
 
@@ -27,6 +30,7 @@ class Member(Base):
     member_type = Column(String(20))
     gender = Column(Enum("M", "F", name="gender"), nullable=True)
     paid = Column(String(40))
+    time_registered = Column(DateTime, default=dt.datetime.utcnow)
 
     __mapper_args__ = {
         "polymorphic_on": member_type,
@@ -101,7 +105,6 @@ class AdminUser(Base):
     def check_password(self, password):
         return bcrypt.checkpw(password, self._password.encode('utf-8'))
 
-import datetime as dt
 
 class Session(Base):
     EXPIRY_TIME = dt.timedelta(hours=1)
