@@ -3,6 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy import (
     Column, Integer, DateTime, Enum, String, UnicodeText, Text, Boolean, ForeignKey, func, Interval, text, DateTime
 )
+from sqlalchemy.ext.hybrid import hybrid_property
 import tzlocal
 import bcrypt
 import logging
@@ -29,13 +30,23 @@ class Member(Base):
     email = Column(Text)
     member_type = Column(String(20))
     gender = Column(Enum("M", "F", name="gender"), nullable=True)
-    paid = Column(String(40))
+    _paid = Column('paid', String(40))
     time_registered = Column(DateTime, default=dt.datetime.utcnow)
+    time_paid = Column(DateTime)
 
     __mapper_args__ = {
         "polymorphic_on": member_type,
         "polymorphic_identity": "generic",
     }
+
+    @hybrid_property
+    def paid(self):
+        return self._paid
+
+    @paid.setter
+    def paid(self, value):
+        self._paid = value
+        self.time_paid = dt.datetime.utcnow()
 
     def has_paid(self):
         return self.paid is not None
