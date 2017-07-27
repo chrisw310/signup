@@ -1,8 +1,9 @@
 <%inherit file="base.mako"/>
 
-<div class="row">
-<div id="body" class="col-sm-12 col-md-8 col-md-offset-2">
+<div class="row" style="text-align:center">
+<div id="body" class="col-sm-12 col-md-6 col-md-offset-3">
 
+<img src="/static/logo.png" />
 <h1>2017 UQCS Registration</h1>
 <div class="flash">
   % for category, msg in get_msgs(with_categories=True):
@@ -26,24 +27,26 @@
     <input name="email" type="email" class="form-control" id="emailInput" placeholder="Email" required="true">
   </div>
   <div class="form-group">
-    <label>Gender</label>
-    <div class="radio">
-      <label>
-        <input name="gender" type="radio" value="M">
-        Male
-      </label>
-    </div>
-    <div class="radio">
-      <label>
-        <input name="gender" type="radio" value="F">
-        Female
-      </label>
-    </div>
-    <div class="radio">
-      <label>
-        <input name="gender" type="radio" value="null" data-bind="checked: gender" checked>
-        Prefer not to disclose
-      </label>
+    <label>Gender</label><br />
+    <div style="text-align: left; display: inline-block">
+      <div class="radio">
+        <label>
+          <input name="gender" type="radio" value="M">
+          Male
+        </label>
+      </div>
+      <div class="radio">
+        <label>
+          <input name="gender" type="radio" value="F">
+          Female
+        </label>
+      </div>
+      <div class="radio">
+        <label>
+          <input name="gender" type="radio" value="null" data-bind="checked: gender" checked>
+          Other / Prefer not to disclose
+        </label>
+      </div>
     </div>
   </div>
   <div class="form-group">

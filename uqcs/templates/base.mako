@@ -3,6 +3,7 @@
 <head>
 <title>Join UQCS 2017</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel='shortcut icon' type='image/x-icon' href='/static/favicon.ico' />
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 <style type="text/css">
 iframe{display:block;}
@@ -10,7 +11,8 @@ iframe{display:block;}
 body{background-image: url('/static/bg.png'); background-size: cover}
 html,body{min-height: 100%}
 .row,.container{min-height: 100%}
-#body{background-color: white; min-height:100%;}
+.container{padding-top: 20px;}
+#body{color: white;min-height:100%;}
 </style>
 
 <%block name="head_extra">
