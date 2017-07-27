@@ -3,6 +3,7 @@ from werkzeug import exceptions
 from .templates import lookup
 from .base import needs_db, mailchimp_queue, mailer_queue
 import sqlalchemy.exc as sa_exc
+from sqlalchemy.sql.expression import nullslast
 import functools
 from . import models as m
 import os
@@ -115,7 +116,7 @@ def admin_login(s):
 @admin.route('/accept')
 @needs_db_and_admin
 def admin_accept(s, user):
-    q = s.query(m.Member).filter(m.Member.paid == None)
+    q = s.query(m.Member).filter(m.Member.paid == None).order_by(nullslast(m.Member.time_registered))
     return lookup.get_template('accept.mako').render(members=q)
 
 
