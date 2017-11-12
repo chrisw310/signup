@@ -141,6 +141,10 @@ var handler = StripeCheckout.configure({
   }
 });
 $('#payonline_submit').on('click', function(e){
+  e.preventDefault();
+  if(!$('#fullForm')[0].checkValidity()) {
+    return;
+  }
   handler.open({
     name: 'UQCS',
     description: '2017 Membership',
@@ -148,7 +152,6 @@ $('#payonline_submit').on('click', function(e){
     amount: 540,
     'email': $('#emailInput').val()
   });
-  e.preventDefault();
 })
 $(window).on('popstate', function() {
   handler.close();
