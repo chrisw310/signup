@@ -4,7 +4,7 @@
 <div id="body" class="col-sm-12 col-md-6 col-md-offset-3">
 
 <img src="/static/logo.png" />
-<h1>2017 UQCS Registration</h1>
+<h1>2018 UQCS Registration</h1>
 <div class="flash">
   % for category, msg in get_msgs(with_categories=True):
   <div class="alert alert-${category} alert-dismissible" role="alert">
@@ -147,7 +147,7 @@ $('#payonline_submit').on('click', function(e){
   }
   handler.open({
     name: 'UQCS',
-    description: '2017 Membership',
+    description: '2018 Membership',
     currency: "aud",
     amount: 540,
     'email': $('#emailInput').val()

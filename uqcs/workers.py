@@ -77,7 +77,7 @@ def mailer_worker(mailqueue):
                               'bcc': "receipts@uqcs.org.au",
                               'text': receiptText,
                               'html': premailer.transform(receiptHTML),
-                              'subject': "UQCS 2017 Membership Receipt",
+                              'subject': "UQCS 2018 Membership Receipt",
                           })
         except Exception as e:
             logger.exception(e)

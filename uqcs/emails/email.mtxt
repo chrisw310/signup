@@ -1,24 +1,22 @@
 **********
-$5.40 Paid
+$ ${'5.40' if user.paid != "CASH" else '5.00'} Paid
 **********
 
 -----------------------
-Welcome to UQCS in 2017
+Welcome to UQCS in 2018
 -----------------------
 
 ${user.first_name} ${user.last_name}
 ${str(dt.datetime.now())}
 
-UQCS 2017 Membership
+UQCS 2018 Membership
 $ 5.00
 
 % if user.paid != "CASH":
-
 Online Payment Fee
 $ 0.40
 
 % endif
-
 Total
 $ ${'5.40' if user.paid != "CASH" else '5.00'}
 
