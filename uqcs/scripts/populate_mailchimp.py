@@ -16,11 +16,11 @@ def main(args):
         s = Session()
         members = s.query(m.Member)
         for mem in members:
-        	mailchimp_queue.put(mem)
+            mailchimp_queue.put(mem)
         mailchimp_queue.put(None)
-    	mailchimp_worker(mailchimp_queue)
+        mailchimp_worker(mailchimp_queue)
 
 
 if __name__ == "__main__":
-	import sys
-	main(sys.argv)
+    import sys
+    main(sys.argv)
