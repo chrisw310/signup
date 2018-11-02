@@ -1,5 +1,4 @@
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
-from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy import (
     Column, Integer, DateTime, Enum, String, UnicodeText, Text, Boolean, ForeignKey, func, Interval, text, DateTime
 )
@@ -7,6 +6,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 import tzlocal
 import bcrypt
 import logging
+import uuid
 import datetime as dt
 logger = logging.getLogger(__name__)
 
@@ -119,7 +119,7 @@ class AdminUser(Base):
 
 class Session(Base):
     EXPIRY_TIME = dt.timedelta(hours=1)
-    token = Column(PGUUID, primary_key=True, server_default=text('uuid_generate_v4()'))
+    token = Column(String, primary_key=True, default=uuid.uuid4)
     username = Column(Text, ForeignKey(AdminUser._username))
     issued_datetime = Column(DateTime(), default=dt.datetime.now, server_default='now')
     logger = logger.getChild('Session')
